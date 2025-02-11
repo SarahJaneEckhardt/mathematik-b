@@ -1,0 +1,56 @@
+---
+title: "Regendaten"
+subtitle: "Hausarbeit
+---
+B??chereien zum Herrunterladen
+
+```{r}
+#| echo: false
+#| message: false
+library(sf)
+library(giscoR)
+library(lubridate)
+library(patchwork)
+library(tidyverse)
+library(rdwd)
+library(RCurl)
+library(knitr)
+```
+
+Generelle Vorgeehnsweise, die sich bew??hrt hat "10 Tage Bearbeitungszeit"
+1. Alle Daten in einen gro??en Dataframe (Daten einlesen und zun??chst lokal abspeichern)
+2. Falls aufw??ndig: Eigene qmd-Datei in 
+  - RDATA-Datei abspeichern
+  -> weitere Unterlagen
+3. Daten zum PLotten filtern
+4. Vom Ende her denken: Was will ich sehen?/ Was brauche ich daf??r?
+5.Priosieren: Darstellungsdetails sp??ter, wenn noch Zeit ist?
+6. Inkrementell arbeiten: Mit wenigen Merkmalen beginnen, bei Bedarf erg??nzen
+
+
+# Beispiel zum Einstieg: NiederschlC$ge in ausgewC$hlten deutschen StC$dten
+# Daten auslesen aus einer Niederschlagsstation
+
+```{r}
+
+d <- selectDWD(name = "Koeln-Bonn", res = "daily", var = "kl", per = "historical", current=TRUE) |>
+  dataDWD(read = FALSE) |>
+  readDWD(varnames = TRUE) |>
+  mutate(datum = ymd(MESS_DATUM))
+ggplot(data = d) + geom_col(mapping = aes(x = datum, y = RSK.Niederschlagshoehe, current =TRUE))
+```
+```{r}
+data("geoIndex")
+show(geoIndex |> select(-display))
+```
+```{r}
+data("metaIndex")
+show(metaIndex)
+```
+
+```{r}
+ids <- findID("Berlin", exactmatch = FALSE)
+metaIndex |>
+  filter(Stations_id %in% ids, res == 'daily', var == 'kl', per == 'historical') |>
+  show()
+```
